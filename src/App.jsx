@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 const STORAGE_KEY = "cse310-study-sprint-planner";
 const SPRINT_GOAL_HOURS = 20;
