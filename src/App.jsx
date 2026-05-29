@@ -17,9 +17,18 @@ import {
 const STORAGE_KEY = "cse310-study-sprint-planner";
 const SPRINT_GOAL_HOURS = 20;
 const categories = ["Research", "Implementation", "Troubleshooting", "Documentation", "Video Production"];
+
+function createId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `task-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 const defaultTasks = [
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     title: "Confirm React/Vite setup and project structure",
     category: "Research",
     hours: 2,
@@ -28,7 +37,7 @@ const defaultTasks = [
     notes: "Reviewed components, state, props, and Vite workflow.",
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     title: "Build sprint task form and progress dashboard",
     category: "Implementation",
     hours: 3,
@@ -37,7 +46,7 @@ const defaultTasks = [
     notes: "Connect user input to React state and visible progress metrics.",
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     title: "Record demo video and code walkthrough",
     category: "Video Production",
     hours: 2,
@@ -89,7 +98,7 @@ function App() {
 
     const nextTask = {
       ...form,
-      id: editingId || crypto.randomUUID(),
+      id: editingId || createId(),
       title: trimmedTitle,
       hours: Math.max(Number(form.hours) || 0, 0.25),
       notes: form.notes.trim(),
