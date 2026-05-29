@@ -50,10 +50,23 @@ const emptyForm = {
   notes: "",
 };
 
+function normalizeTask(task, index) {
+  return {
+    id: task?.id || createId(),
+    title: String(task?.title || `Sprint task ${index + 1}`),
+    category: categories.includes(task?.category) ? task.category : categories[0],
+    hours: Math.max(Number(task?.hours) || 0.25, 0.25),
+    status: ["planned", "active", "done"].includes(task?.status) ? task.status : "planned",
+    day: String(task?.day || "Monday"),
+    notes: String(task?.notes || ""),
+  };
+}
+
 function loadTasks() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : defaultTasks;
+    const parsedTasks = saved ? JSON.parse(saved) : defaultTasks;
+    return Array.isArray(parsedTasks) ? parsedTasks.map(normalizeTask) : defaultTasks;
   } catch {
     return defaultTasks;
   }
@@ -136,7 +149,7 @@ function App() {
       const matchesSearch =
         !query ||
         task.title.toLowerCase().includes(query) ||
-        task.notes.toLowerCase().includes(query) ||
+        String(task.notes || "").toLowerCase().includes(query) ||
         task.day.toLowerCase().includes(query);
       const matchesCategory = categoryFilter === "All" || task.category === categoryFilter;
       const matchesStatus = statusFilter === "All" || task.status === statusFilter;
