@@ -4,6 +4,7 @@ const STORAGE_KEY = "daily-routine-24-hour-planner-v2";
 const DAY_GOAL_HOURS = 24;
 const categories = ["Sleep", "Work", "Study", "Family", "Prayer", "Reflection", "Personal Care"];
 
+// Creates a unique id for each routine block.
 function createId() {
   if (globalThis.crypto?.randomUUID) {
     return globalThis.crypto.randomUUID();
@@ -86,6 +87,7 @@ const emptyForm = {
   notes: "",
 };
 
+// Cleans saved routine data so older or incomplete local storage entries still work.
 function normalizeTask(task, index) {
   return {
     id: task?.id || createId(),
@@ -98,6 +100,7 @@ function normalizeTask(task, index) {
   };
 }
 
+// Loads saved routine blocks or falls back to the default 24-hour Saturday plan.
 function loadTasks() {
   try {
     // Restore saved routine blocks first so the planner keeps its state after refresh.
@@ -109,6 +112,7 @@ function loadTasks() {
   }
 }
 
+// Renders the planner and coordinates state, filtering, summaries, and generated views.
 function App() {
   const [tasks, setTasks] = useState(loadTasks);
   const [form, setForm] = useState(emptyForm);
@@ -118,16 +122,19 @@ function App() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [activeView, setActiveView] = useState("planner");
 
+  // Updates React state and local storage together so the UI and saved data stay in sync.
   function persist(nextTasks) {
     setTasks(nextTasks);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextTasks));
   }
 
+  // Copies form input changes into the current routine block form state.
   function handleChange(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
   }
 
+  // Adds a new routine block or saves edits to an existing routine block.
   function handleSubmit(event) {
     event.preventDefault();
     const trimmedTitle = form.title.trim();
@@ -151,6 +158,7 @@ function App() {
     setEditingId(null);
   }
 
+  // Loads an existing routine block into the form so it can be edited.
   function startEdit(task) {
     setEditingId(task.id);
     setForm({
@@ -162,16 +170,19 @@ function App() {
     });
   }
 
+  // Leaves edit mode and restores the empty routine block form.
   function cancelEdit() {
     setEditingId(null);
     setForm(emptyForm);
   }
 
+  // Deletes a routine block and exits edit mode if the deleted block was being edited.
   function removeTask(taskId) {
     persist(tasks.filter((task) => task.id !== taskId));
     if (editingId === taskId) cancelEdit();
   }
 
+  // Switches a routine block between complete and active status.
   function toggleComplete(taskId) {
     persist(
       tasks.map((task) => {
@@ -514,6 +525,7 @@ function App() {
   );
 }
 
+// Displays one dashboard metric in the summary row.
 function SummaryCard({ icon, label, value }) {
   return (
     <article className="summary-card">
