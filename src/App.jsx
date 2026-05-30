@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 
-const STORAGE_KEY = "cse310-study-sprint-planner";
-const SPRINT_GOAL_HOURS = 20;
-const categories = ["Research", "Implementation", "Troubleshooting", "Documentation", "Video Production"];
+const STORAGE_KEY = "daily-routine-24-hour-planner-v2";
+const DAY_GOAL_HOURS = 24;
+const categories = ["Sleep", "Work", "Study", "Family", "Prayer", "Reflection", "Personal Care"];
 
 function createId() {
   if (globalThis.crypto?.randomUUID) {
@@ -15,30 +15,66 @@ function createId() {
 const defaultTasks = [
   {
     id: createId(),
-    title: "Confirm React/Vite setup and project structure",
-    category: "Research",
-    hours: 2,
+    title: "Sleep and morning reset",
+    category: "Sleep",
+    hours: 8,
     status: "done",
-    day: "Monday",
-    notes: "Reviewed components, state, props, and Vite workflow.",
+    day: "Saturday",
+    notes: "Rest, wake up, make the bed, and start the day calmly.",
   },
   {
     id: createId(),
-    title: "Build sprint task form and progress dashboard",
-    category: "Implementation",
-    hours: 3,
+    title: "Morning prayer and personal reflection",
+    category: "Prayer",
+    hours: 1,
+    status: "done",
+    day: "Saturday",
+    notes: "Pray, read, journal, and set the intention for the day.",
+  },
+  {
+    id: createId(),
+    title: "Study block for CSE 310",
+    category: "Study",
+    hours: 4,
     status: "active",
-    day: "Tuesday",
-    notes: "Connect user input to React state and visible progress metrics.",
+    day: "Saturday",
+    notes: "Work on the app, review code, and prepare the walkthrough.",
   },
   {
     id: createId(),
-    title: "Record demo video and code walkthrough",
-    category: "Video Production",
-    hours: 2,
+    title: "Work or responsibilities",
+    category: "Work",
+    hours: 4,
+    status: "active",
+    day: "Saturday",
+    notes: "Handle job tasks, errands, or important responsibilities.",
+  },
+  {
+    id: createId(),
+    title: "Family time",
+    category: "Family",
+    hours: 3,
     status: "planned",
     day: "Saturday",
-    notes: "Show my face, demonstrate the app, and explain how the code works.",
+    notes: "Share a meal, call family, or spend focused time together.",
+  },
+  {
+    id: createId(),
+    title: "Meals, exercise, and personal care",
+    category: "Personal Care",
+    hours: 3,
+    status: "planned",
+    day: "Saturday",
+    notes: "Eat, clean up, exercise, and take care of daily needs.",
+  },
+  {
+    id: createId(),
+    title: "Evening reflection and planning tomorrow",
+    category: "Reflection",
+    hours: 1,
+    status: "planned",
+    day: "Saturday",
+    notes: "Review the day, update completed blocks, and prepare for Sunday.",
   },
 ];
 
@@ -46,18 +82,18 @@ const emptyForm = {
   title: "",
   category: categories[0],
   hours: "1",
-  day: "Monday",
+  day: "Saturday",
   notes: "",
 };
 
 function normalizeTask(task, index) {
   return {
     id: task?.id || createId(),
-    title: String(task?.title || `Sprint task ${index + 1}`),
+    title: String(task?.title || `Routine block ${index + 1}`),
     category: categories.includes(task?.category) ? task.category : categories[0],
     hours: Math.max(Number(task?.hours) || 0.25, 0.25),
     status: ["planned", "active", "done"].includes(task?.status) ? task.status : "planned",
-    day: String(task?.day || "Monday"),
+    day: String(task?.day || "Saturday"),
     notes: String(task?.notes || ""),
   };
 }
@@ -68,7 +104,7 @@ function loadTasks() {
     const parsedTasks = saved ? JSON.parse(saved) : defaultTasks;
     return Array.isArray(parsedTasks) ? parsedTasks.map(normalizeTask) : defaultTasks;
   } catch {
-    return defaultTasks;
+    return defaultTasks.map(normalizeTask);
   }
 }
 
@@ -175,7 +211,7 @@ function App() {
       plannedCount: tasks.filter((task) => task.status === "planned").length,
       activeCount: tasks.filter((task) => task.status === "active").length,
       doneCount: tasks.filter((task) => task.status === "done").length,
-      progressPercent: Math.min(Math.round((completedHours / SPRINT_GOAL_HOURS) * 100), 100),
+      progressPercent: Math.min(Math.round((completedHours / DAY_GOAL_HOURS) * 100), 100),
       categoryTotals,
     };
   }, [tasks]);
@@ -185,8 +221,8 @@ function App() {
       <section className="workspace">
         <header className="top-bar">
           <div>
-            <p className="eyebrow">CSE 310 Module #2</p>
-            <h1>Study Sprint Planner</h1>
+            <p className="eyebrow">Saturday Daily Routine</p>
+            <h1>24-Hour Routine Planner</h1>
           </div>
           <a className="repo-link" href="https://github.com/bbrain777" target="_blank" rel="noreferrer">
             <span aria-hidden="true">GH</span>
@@ -194,21 +230,21 @@ function App() {
           </a>
         </header>
 
-        <section className="summary-grid" aria-label="Sprint summary">
-          <SummaryCard icon="HR" label="Planned Hours" value={summary.totalHours.toFixed(1)} />
+        <section className="summary-grid" aria-label="Daily routine summary">
+          <SummaryCard icon="HR" label="Scheduled Hours" value={summary.totalHours.toFixed(1)} />
           <SummaryCard icon="OK" label="Completed Hours" value={summary.completedHours.toFixed(1)} />
-          <SummaryCard icon="%" label="Sprint Progress" value={`${summary.progressPercent}%`} />
-          <SummaryCard icon="TO" label="Open Tasks" value={summary.plannedCount + summary.activeCount} />
+          <SummaryCard icon="%" label="Day Progress" value={`${summary.progressPercent}%`} />
+          <SummaryCard icon="TO" label="Open Blocks" value={summary.plannedCount + summary.activeCount} />
         </section>
 
         <section className="progress-panel">
           <div>
-            <p className="panel-label">Progress toward 20 hour sprint</p>
+            <p className="panel-label">Progress toward a 24 hour day</p>
             <div className="progress-track" aria-label={`${summary.progressPercent}% complete`}>
               <span style={{ width: `${summary.progressPercent}%` }} />
             </div>
           </div>
-          <div className="status-counts" aria-label="Task status counts">
+          <div className="status-counts" aria-label="Routine block status counts">
             <span>{summary.plannedCount} planned</span>
             <span>{summary.activeCount} active</span>
             <span>{summary.doneCount} done</span>
@@ -216,16 +252,16 @@ function App() {
         </section>
 
         <div className="content-grid">
-          <section className="task-editor" aria-label="Task editor">
-            <h2>{editingId ? "Edit Task" : "Add Sprint Task"}</h2>
+          <section className="task-editor" aria-label="Routine block editor">
+            <h2>{editingId ? "Edit Routine Block" : "Add Routine Block"}</h2>
             <form onSubmit={handleSubmit}>
               <label>
-                Task
+                Activity
                 <input
                   name="title"
                   value={form.title}
                   onChange={handleChange}
-                  placeholder="Build filter controls"
+                  placeholder="Evening prayer"
                   required
                 />
               </label>
@@ -248,7 +284,7 @@ function App() {
               <label>
                 Day
                 <select name="day" value={form.day} onChange={handleChange}>
-                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
                     <option key={day}>{day}</option>
                   ))}
                 </select>
@@ -260,7 +296,7 @@ function App() {
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
-                  placeholder="What will this task help you learn?"
+                  placeholder="What do you want this time to include?"
                   rows="4"
                 />
               </label>
@@ -280,14 +316,15 @@ function App() {
             </form>
           </section>
 
-          <section className="task-board" aria-label="Sprint tasks">
+          <section className="task-board" aria-label="Daily routine blocks">
             <div className="board-toolbar">
               <div className="search-box">
                 <span aria-hidden="true">Search</span>
                 <input
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Search tasks"
+                  placeholder="Search routine"
+                  aria-label="Search routine blocks"
                 />
               </div>
               <div className="filter-row">
@@ -309,7 +346,7 @@ function App() {
 
             <div className="task-list">
               {filteredTasks.length === 0 ? (
-                <p className="empty-state">No matching tasks. Adjust the filters or add a new sprint task.</p>
+                <p className="empty-state">No matching routine blocks. Adjust the filters or add a new activity.</p>
               ) : (
                 filteredTasks.map((task) => (
                   <article key={task.id} className={`task-card ${task.status}`}>

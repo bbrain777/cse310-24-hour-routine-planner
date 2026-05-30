@@ -1,7 +1,7 @@
 {
-  "name": "cse310-study-sprint-planner",
+  "name": "cse310-24-hour-routine-planner",
   "version": "1.0.0",
-  "description": "React web app for planning and tracking a CSE 310 learning sprint.",
+  "description": "React/Vite web app for planning and tracking a complete 24-hour Saturday routine.",
   "private": true,
   "type": "module",
   "scripts": {
