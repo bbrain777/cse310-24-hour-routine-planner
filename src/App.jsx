@@ -100,6 +100,7 @@ function normalizeTask(task, index) {
 
 function loadTasks() {
   try {
+    // Restore saved routine blocks first so the planner keeps its state after refresh.
     const saved = localStorage.getItem(STORAGE_KEY);
     const parsedTasks = saved ? JSON.parse(saved) : defaultTasks;
     return Array.isArray(parsedTasks) ? parsedTasks.map(normalizeTask) : defaultTasks;
@@ -194,6 +195,7 @@ function App() {
   }, [tasks, searchTerm, categoryFilter, statusFilter]);
 
   const summary = useMemo(() => {
+    // Derive dashboard totals from the current routine list instead of storing duplicate state.
     const totalHours = tasks.reduce((sum, task) => sum + Number(task.hours), 0);
     const completedHours = tasks
       .filter((task) => task.status === "done")
@@ -224,7 +226,12 @@ function App() {
             <p className="eyebrow">Saturday Daily Routine</p>
             <h1>24-Hour Routine Planner</h1>
           </div>
-          <a className="repo-link" href="https://github.com/bbrain777" target="_blank" rel="noreferrer">
+          <a
+            className="repo-link"
+            href="https://github.com/bbrain777/cse310-24-hour-routine-planner"
+            target="_blank"
+            rel="noreferrer"
+          >
             <span aria-hidden="true">GH</span>
             GitHub
           </a>

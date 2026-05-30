@@ -6,7 +6,7 @@
 
 The app starts with a default Saturday routine that totals exactly 24 hours. Users can add, edit, delete, complete, search, and filter routine blocks. It also calculates scheduled hours, completed hours, day progress toward 24 hours, open block count, and hours by category. Routine data is saved in browser local storage so the plan remains available after the page refreshes.
 
-[Software Demo Video](https://youtu.be/replace-with-your-video-link)
+[Software Demo Video](https://youtu.be/ArTsHrJ5-w8)
 
 ## Development Environment
 
