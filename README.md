@@ -4,7 +4,7 @@
 
 24-Hour Routine Planner is a React/Vite web application created for the CSE 310 Web Apps module. The purpose of the app is to help plan and track a full Saturday routine across Sleep, Work, Study, Family, Prayer, Reflection, and Personal Care.
 
-The app starts with a default Saturday routine that totals exactly 24 hours. Users can add, edit, delete, complete, search, and filter routine blocks. It also calculates scheduled hours, completed hours, day progress toward 24 hours, open block count, and hours by category. Routine data is saved in browser local storage so the plan remains available after the page refreshes.
+The app starts with a default Saturday routine that totals exactly 24 hours. Users can add, edit, delete, complete, search, and filter routine blocks. It also calculates scheduled hours, completed hours, day progress toward 24 hours, open block count, and hours by category. The interface includes three dynamically generated React views: Planner, Day Summary, and Completion Review. Routine data is saved in browser local storage so the plan remains available after the page refreshes.
 
 [Software Demo Video](https://youtu.be/ArTsHrJ5-w8)
 
@@ -59,5 +59,6 @@ npm.cmd run build
 * Displays dynamically changing content based on user input.
 * Uses React state, derived summary data, form handling, search, filters, and conditional rendering.
 * Saves routine block data in browser local storage.
+* Includes three dynamically generated app views based on the current routine data.
 * Includes a default Saturday routine that totals exactly 24 scheduled hours.
 * README is located at the root of the project and documents the software.

@@ -116,6 +116,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [activeView, setActiveView] = useState("planner");
 
   function persist(nextTasks) {
     setTasks(nextTasks);
@@ -218,6 +219,9 @@ function App() {
     };
   }, [tasks]);
 
+  const nextBlocks = tasks.filter((task) => task.status !== "done").slice(0, 3);
+  const completedBlocks = tasks.filter((task) => task.status === "done");
+
   return (
     <main className="app-shell">
       <section className="workspace">
@@ -236,6 +240,23 @@ function App() {
             GitHub
           </a>
         </header>
+
+        <nav className="view-tabs" aria-label="Routine views">
+          {[
+            ["planner", "Planner"],
+            ["summary", "Day Summary"],
+            ["review", "Completion Review"],
+          ].map(([view, label]) => (
+            <button
+              key={view}
+              type="button"
+              className={activeView === view ? "active" : ""}
+              onClick={() => setActiveView(view)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
 
         <section className="summary-grid" aria-label="Daily routine summary">
           <SummaryCard icon="HR" label="Scheduled Hours" value={summary.totalHours.toFixed(1)} />
@@ -258,151 +279,236 @@ function App() {
           </div>
         </section>
 
-        <div className="content-grid">
-          <section className="task-editor" aria-label="Routine block editor">
-            <h2>{editingId ? "Edit Routine Block" : "Add Routine Block"}</h2>
-            <form onSubmit={handleSubmit}>
-              <label>
-                Activity
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="Evening prayer"
-                  required
-                />
-              </label>
+        {activeView === "planner" && (
+          <>
+            <div className="content-grid">
+              <section className="task-editor" aria-label="Routine block editor">
+                <h2>{editingId ? "Edit Routine Block" : "Add Routine Block"}</h2>
+                <form onSubmit={handleSubmit}>
+                  <label>
+                    Activity
+                    <input
+                      name="title"
+                      value={form.title}
+                      onChange={handleChange}
+                      placeholder="Evening prayer"
+                      required
+                    />
+                  </label>
 
-              <div className="form-row">
-                <label>
-                  Category
-                  <select name="category" value={form.category} onChange={handleChange}>
-                    {categories.map((category) => (
-                      <option key={category}>{category}</option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Hours
-                  <input name="hours" type="number" min="0.25" step="0.25" value={form.hours} onChange={handleChange} />
-                </label>
-              </div>
+                  <div className="form-row">
+                    <label>
+                      Category
+                      <select name="category" value={form.category} onChange={handleChange}>
+                        {categories.map((category) => (
+                          <option key={category}>{category}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Hours
+                      <input
+                        name="hours"
+                        type="number"
+                        min="0.25"
+                        step="0.25"
+                        value={form.hours}
+                        onChange={handleChange}
+                      />
+                    </label>
+                  </div>
 
-              <label>
-                Day
-                <select name="day" value={form.day} onChange={handleChange}>
-                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
-                    <option key={day}>{day}</option>
-                  ))}
-                </select>
-              </label>
+                  <label>
+                    Day
+                    <select name="day" value={form.day} onChange={handleChange}>
+                      {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                        <option key={day}>{day}</option>
+                      ))}
+                    </select>
+                  </label>
 
-              <label>
-                Notes
-                <textarea
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  placeholder="What do you want this time to include?"
-                  rows="4"
-                />
-              </label>
+                  <label>
+                    Notes
+                    <textarea
+                      name="notes"
+                      value={form.notes}
+                      onChange={handleChange}
+                      placeholder="What do you want this time to include?"
+                      rows="4"
+                    />
+                  </label>
 
-              <div className="button-row">
-                <button type="submit" className="primary-button">
-                  <span aria-hidden="true">{editingId ? "SV" : "AD"}</span>
-                  {editingId ? "Save" : "Add"}
-                </button>
-                {editingId && (
-                  <button type="button" className="ghost-button" onClick={cancelEdit} aria-label="Cancel edit">
-                    <span aria-hidden="true">X</span>
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </form>
-          </section>
-
-          <section className="task-board" aria-label="Daily routine blocks">
-            <div className="board-toolbar">
-              <div className="search-box">
-                <span aria-hidden="true">Search</span>
-                <input
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Search routine"
-                  aria-label="Search routine blocks"
-                />
-              </div>
-              <div className="filter-row">
-                <span aria-hidden="true">Filter</span>
-                <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-                  <option>All</option>
-                  {categories.map((category) => (
-                    <option key={category}>{category}</option>
-                  ))}
-                </select>
-                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-                  <option>All</option>
-                  <option value="planned">planned</option>
-                  <option value="active">active</option>
-                  <option value="done">done</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="task-list">
-              {filteredTasks.length === 0 ? (
-                <p className="empty-state">No matching routine blocks. Adjust the filters or add a new activity.</p>
-              ) : (
-                filteredTasks.map((task) => (
-                  <article key={task.id} className={`task-card ${task.status}`}>
-                    <button
-                      type="button"
-                      className="status-button"
-                      onClick={() => toggleComplete(task.id)}
-                      aria-label={task.status === "done" ? "Mark task active" : "Mark task complete"}
-                    >
-                      {task.status === "done" ? "OK" : ""}
+                  <div className="button-row">
+                    <button type="submit" className="primary-button">
+                      <span aria-hidden="true">{editingId ? "SV" : "AD"}</span>
+                      {editingId ? "Save" : "Add"}
                     </button>
-                    <div className="task-details">
-                      <div className="task-heading">
-                        <h3>{task.title}</h3>
-                        <span>{task.hours} hr</span>
-                      </div>
-                      <p>{task.notes || "No notes added yet."}</p>
-                      <div className="task-meta">
-                        <span>{task.category}</span>
-                        <span>{task.day}</span>
-                        <span>{task.status}</span>
-                      </div>
-                    </div>
-                    <div className="card-actions">
-                      <button type="button" onClick={() => startEdit(task)} aria-label={`Edit ${task.title}`}>
-                        Edit
+                    {editingId && (
+                      <button type="button" className="ghost-button" onClick={cancelEdit} aria-label="Cancel edit">
+                        <span aria-hidden="true">X</span>
+                        Cancel
                       </button>
-                      <button type="button" onClick={() => removeTask(task.id)} aria-label={`Delete ${task.title}`}>
-                        Del
-                      </button>
-                    </div>
-                  </article>
-                ))
-              )}
+                    )}
+                  </div>
+                </form>
+              </section>
+
+              <section className="task-board" aria-label="Daily routine blocks">
+                <div className="board-toolbar">
+                  <div className="search-box">
+                    <span aria-hidden="true">Search</span>
+                    <input
+                      value={searchTerm}
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      placeholder="Search routine"
+                      aria-label="Search routine blocks"
+                    />
+                  </div>
+                  <div className="filter-row">
+                    <span aria-hidden="true">Filter</span>
+                    <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+                      <option>All</option>
+                      {categories.map((category) => (
+                        <option key={category}>{category}</option>
+                      ))}
+                    </select>
+                    <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                      <option>All</option>
+                      <option value="planned">planned</option>
+                      <option value="active">active</option>
+                      <option value="done">done</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="task-list">
+                  {filteredTasks.length === 0 ? (
+                    <p className="empty-state">No matching routine blocks. Adjust the filters or add a new activity.</p>
+                  ) : (
+                    filteredTasks.map((task) => (
+                      <article key={task.id} className={`task-card ${task.status}`}>
+                        <button
+                          type="button"
+                          className="status-button"
+                          onClick={() => toggleComplete(task.id)}
+                          aria-label={task.status === "done" ? "Mark task active" : "Mark task complete"}
+                        >
+                          {task.status === "done" ? "OK" : ""}
+                        </button>
+                        <div className="task-details">
+                          <div className="task-heading">
+                            <h3>{task.title}</h3>
+                            <span>{task.hours} hr</span>
+                          </div>
+                          <p>{task.notes || "No notes added yet."}</p>
+                          <div className="task-meta">
+                            <span>{task.category}</span>
+                            <span>{task.day}</span>
+                            <span>{task.status}</span>
+                          </div>
+                        </div>
+                        <div className="card-actions">
+                          <button type="button" onClick={() => startEdit(task)} aria-label={`Edit ${task.title}`}>
+                            Edit
+                          </button>
+                          <button type="button" onClick={() => removeTask(task.id)} aria-label={`Delete ${task.title}`}>
+                            Del
+                          </button>
+                        </div>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </section>
+            </div>
+
+            <section className="category-panel" aria-label="Hours by category">
+              <h2>Hours by Category</h2>
+              <div className="category-grid">
+                {summary.categoryTotals.map((item) => (
+                  <div key={item.category} className="category-item">
+                    <span>{item.category}</span>
+                    <strong>{item.hours.toFixed(1)}</strong>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeView === "summary" && (
+          <section className="dynamic-page" aria-label="Generated day summary">
+            <div>
+              <p className="eyebrow">Generated from your current routine blocks</p>
+              <h2>Day Summary</h2>
+              <p>
+                Your plan currently schedules {summary.totalHours.toFixed(1)} of 24 hours and has completed{" "}
+                {summary.completedHours.toFixed(1)} hours.
+              </p>
+            </div>
+
+            <div className="insight-grid">
+              {summary.categoryTotals.map((item) => (
+                <article key={item.category} className="insight-card">
+                  <span>{item.category}</span>
+                  <strong>{item.hours.toFixed(1)} hr</strong>
+                  <p>{item.hours > 0 ? `${item.category} is included in this routine.` : "No time scheduled yet."}</p>
+                </article>
+              ))}
             </div>
           </section>
-        </div>
+        )}
 
-        <section className="category-panel" aria-label="Hours by category">
-          <h2>Hours by Category</h2>
-          <div className="category-grid">
-            {summary.categoryTotals.map((item) => (
-              <div key={item.category} className="category-item">
-                <span>{item.category}</span>
-                <strong>{item.hours.toFixed(1)}</strong>
+        {activeView === "review" && (
+          <section className="dynamic-page" aria-label="Generated completion review">
+            <div>
+              <p className="eyebrow">Generated from completed and open blocks</p>
+              <h2>Completion Review</h2>
+              <p>
+                {completedBlocks.length} blocks are complete, and {nextBlocks.length} upcoming blocks are ready for
+                attention.
+              </p>
+            </div>
+
+            <div className="review-columns">
+              <div>
+                <h3>Completed Blocks</h3>
+                <div className="task-list">
+                  {completedBlocks.length === 0 ? (
+                    <p className="empty-state">No completed routine blocks yet.</p>
+                  ) : (
+                    completedBlocks.map((task) => (
+                      <article key={task.id} className="mini-card">
+                        <strong>{task.title}</strong>
+                        <span>
+                          {task.category} - {task.hours} hr
+                        </span>
+                      </article>
+                    ))
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
+
+              <div>
+                <h3>Next Blocks</h3>
+                <div className="task-list">
+                  {nextBlocks.length === 0 ? (
+                    <p className="empty-state">Every routine block is complete.</p>
+                  ) : (
+                    nextBlocks.map((task) => (
+                      <article key={task.id} className="mini-card">
+                        <strong>{task.title}</strong>
+                        <span>
+                          {task.category} - {task.status}
+                        </span>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </section>
     </main>
   );

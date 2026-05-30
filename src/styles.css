@@ -93,6 +93,27 @@ h2 {
   white-space: nowrap;
 }
 
+.view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.view-tabs button {
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #31445a;
+  background: #e9eff3;
+  font-weight: 800;
+}
+
+.view-tabs button.active {
+  color: #ffffff;
+  background: #246b76;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -104,7 +125,8 @@ h2 {
 .progress-panel,
 .task-editor,
 .task-board,
-.category-panel {
+.category-panel,
+.dynamic-page {
   border: 1px solid #dbe2ea;
   border-radius: 8px;
   background: #ffffff;
@@ -379,11 +401,58 @@ textarea {
   font-size: 1.25rem;
 }
 
+.dynamic-page {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+}
+
+.dynamic-page h2 {
+  margin-bottom: 8px;
+  font-size: 1.45rem;
+}
+
+.dynamic-page p {
+  margin: 0;
+  color: #536174;
+}
+
+.insight-grid,
+.review-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.insight-card,
+.mini-card {
+  display: grid;
+  gap: 7px;
+  border: 1px solid #dbe2ea;
+  border-radius: 8px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.insight-card span,
+.mini-card span {
+  color: #536174;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.insight-card strong {
+  color: #172234;
+  font-size: 1.35rem;
+}
+
 @media (max-width: 880px) {
   .summary-grid,
   .content-grid,
   .category-grid,
-  .board-toolbar {
+  .board-toolbar,
+  .insight-grid,
+  .review-columns {
     grid-template-columns: 1fr;
   }
 
